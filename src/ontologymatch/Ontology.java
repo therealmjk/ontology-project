@@ -12,7 +12,10 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,6 +42,7 @@ public class Ontology {
     private final int INDEX_E_MATCH = 8;
     private final int MAX_NUM_IDS = 10;
     private final String QUALITY = "PATO";
+    public String permutations = "";
 
     //url
     private final String url;
@@ -51,6 +55,42 @@ public class Ontology {
         this.apiKey = "1de0a270-29c5-4dda-b043-7c3580628cd5";
 
 //        this.url = "https://www.ebi.ac.uk/ols/api/select?q=leaf blast";
+    }
+
+    private String reverseWords(String sentence) {
+        sentence = sentence.toLowerCase();
+        List<String> sentences = new ArrayList<>();
+        String prevWords = "";
+        String nextWords = "";
+        String finalSentence = "";
+
+        if (sentence.contains(" and ")) {
+            String[] words = sentence.toLowerCase().split(" ");
+
+            for (int i = 0; i < words.length; i++) {
+                if (!words[i].equals("and") && i + 1 != words.length && words[i + 1].equals("and")) {
+                    for (int k = 0; k < i + 1; k++) {
+                        prevWords += words[k] + " ";
+                    }
+                } else if (i != 0 && words[i].equals("and")) {
+                    for (int j = i + 1; j < words.length; j++) {
+                        nextWords += words[j] + " ";
+                    }
+                }
+            }
+
+            for (String s : nextWords.split(" ")) {
+                sentences.add(prevWords + s);
+            }
+
+            for (String s : sentences) {
+                finalSentence += s + " ";
+            }
+
+            return sentence + " " + finalSentence;
+        }
+
+        return sentence;
     }
 
     private String getURL(String urlToRead, String input) throws Exception {
@@ -189,13 +229,14 @@ public class Ontology {
                         matches += ", " + matchText;
                     }
 //                    }
+                    tempList.add(idUrl);
                     eqOntolList.add(ontology);
                     eqUriList.add(idUrl);
                     eqMatchList.add(matchText);
                 }
             }
             //add to temp (like a temp storage)
-            tempList.add(idUrl);
+//            tempList.add(idUrl);
         }
 
         //Q stands for quality
@@ -234,16 +275,14 @@ public class Ontology {
                         qUri += ", " + eqUriList.get(i);
                         qMatches += ", " + eqMatchList.get(i);
                     }
+                } else if (i == 0) {
+                    eOntologies += eqOntolList.get(i);
+                    eUri += eqUriList.get(i);
+                    eMatches += eqMatchList.get(i);
                 } else {
-                    if (i == 0) {
-                        eOntologies += eqOntolList.get(i);
-                        eUri += eqUriList.get(i);
-                        eMatches += eqMatchList.get(i);
-                    } else {
-                        eOntologies += ", " + eqOntolList.get(i);
-                        eUri += ", " + eqUriList.get(i);
-                        eMatches += ", " + eqMatchList.get(i);
-                    }
+                    eOntologies += ", " + eqOntolList.get(i);
+                    eUri += ", " + eqUriList.get(i);
+                    eMatches += ", " + eqMatchList.get(i);
                 }
             }
         }
@@ -279,15 +318,15 @@ public class Ontology {
 
             //run thread
             AQ.add(() -> {
-            //create thread
-//            Thread thread = new Thread(() -> {
             String[] ontologies = null;
             String ontologyName = value.toString().trim();
             System.out.println("ont-name - - " + ontologyName);
 
             //get ontologies
             try {
-                ontologies = this.getOntologyId(ontologyName, suggestions, slice);
+                String reversedName = reverseWords(ontologyName);
+                System.out.println("reversed-name - - " + reversedName);
+                ontologies = this.getOntologyId(reversedName, suggestions, slice);
             } catch (Exception ex) {
                 Logger.getLogger(Ontology.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -309,14 +348,10 @@ public class Ontology {
             ReadWriteFile.uriMap.put(ontologyName, ontologies[INDEX_URI]);
             //add matches by adding it to map with ontology-name
             ReadWriteFile.matchMap.put(ontologyName, ontologies[INDEX_MATCH]);
-  
+
             ReadWriteFile.qOntMap.put(ontologyName, ontologies[INDEX_Q_ONT]);
             ReadWriteFile.eOntMap.put(ontologyName, ontologies[INDEX_E_ONT]);
             });
-            //run thread
-//            thread.start();
-            //add to threadlist
-//            threadList.add(thread);
         }
 
         //finish thread
