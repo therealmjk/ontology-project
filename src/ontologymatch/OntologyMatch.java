@@ -30,7 +30,7 @@ public class OntologyMatch {
         String suggestion = "PO,TO,PATO,RO,CO_125,CO_325,CO_333,CO_345,CO_348,"
                 + "CO_334,CO_347,CO_338,CO_335,CO_340,CO_715,CO_337,CO_339,"
                 + "CO_322,CO_020,CO_346,CO_350,CO_327,CO_341,CO_330,CO_320,"
-                + "CO_324,CO_336,CO_331,CO_121,CO_321,CO_357,CO_343";
+                + "CO_324,CO_336,CO_331,CO_121,CO_321,CO_357,CO_343,NCBITAXON";
 
         String slice = "agrold";
 
