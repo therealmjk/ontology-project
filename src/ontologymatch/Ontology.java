@@ -302,7 +302,7 @@ public class Ontology {
         return returnArray;
     }
 
-    public void addOntology(String filename, String colName, String suggestions, String slice) throws Exception {
+    public void addOntology(String filename, String colName, String suggestions, String slice, String seperator) throws Exception {
         ReadWriteFile.ontMap = new HashMap<>();
         ReadWriteFile.uriMap = new HashMap<>();
         ReadWriteFile.matchMap = new HashMap<>();
@@ -311,46 +311,47 @@ public class Ontology {
 //        List<Thread> threadList = new LinkedList<>();
 
         //read and get column names
-        List valueList = ReadWriteFile.readAndGetOntologyNamesFromFile(filename, colName);
-
+        List valueList = ReadWriteFile.readAndGetOntologyNamesFromFile(filename, colName, seperator);
+//        System.out.println(valueList.size());
+//        return;
         //loop thru all added ontology-names
         for (Object value : valueList) {
 
             //run thread
             AQ.add(() -> {
-            String[] ontologies = null;
-            String ontologyName = value.toString().trim();
-            System.out.println("ont-name - - " + ontologyName);
+                String[] ontologies = null;
+                String ontologyName = value.toString().trim();
+                System.out.println("ont-name - - " + ontologyName);
 
-            //get ontologies
-            try {
-                String reversedName = reverseWords(ontologyName);
-                System.out.println("reversed-name - - " + reversedName);
-                ontologies = this.getOntologyId(reversedName, suggestions, slice);
-            } catch (Exception ex) {
-                Logger.getLogger(Ontology.class.getName()).log(Level.SEVERE, null, ex);
-            }
+                //get ontologies
+                try {
+                    String reversedName = reverseWords(ontologyName);
+                    System.out.println("reversed-name - - " + reversedName);
+                    ontologies = this.getOntologyId(reversedName, suggestions, slice);
+                } catch (Exception ex) {
+                    Logger.getLogger(Ontology.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
-            System.out.println("ontol - - " + ontologies[INDEX_ONT]);
-            System.out.println("uri - - " + ontologies[INDEX_URI]);
-            System.out.println("match - - " + ontologies[INDEX_MATCH]);
+                System.out.println("ontol - - " + ontologies[INDEX_ONT]);
+                System.out.println("uri - - " + ontologies[INDEX_URI]);
+                System.out.println("match - - " + ontologies[INDEX_MATCH]);
 
-            System.out.println("Q-Ontol - - " + ontologies[INDEX_Q_ONT]);
-            System.out.println("Q-Uri - - " + ontologies[INDEX_Q_URI]);
-            System.out.println("Q-Match - - " + ontologies[INDEX_Q_MATCH]);
-            System.out.println("E-Ontol - - " + ontologies[INDEX_E_ONT]);
-            System.out.println("E-Uri - - " + ontologies[INDEX_E_URI]);
-            System.out.println("E-Match - - " + ontologies[INDEX_E_MATCH]);
+                System.out.println("Q-Ontol - - " + ontologies[INDEX_Q_ONT]);
+                System.out.println("Q-Uri - - " + ontologies[INDEX_Q_URI]);
+                System.out.println("Q-Match - - " + ontologies[INDEX_Q_MATCH]);
+                System.out.println("E-Ontol - - " + ontologies[INDEX_E_ONT]);
+                System.out.println("E-Uri - - " + ontologies[INDEX_E_URI]);
+                System.out.println("E-Match - - " + ontologies[INDEX_E_MATCH]);
 
-            //add ontology-id by adding it to map with ontology-name
-            ReadWriteFile.ontMap.put(ontologyName, ontologies[INDEX_ONT]);
-            //add uri by adding it to map with ontology-name
-            ReadWriteFile.uriMap.put(ontologyName, ontologies[INDEX_URI]);
-            //add matches by adding it to map with ontology-name
-            ReadWriteFile.matchMap.put(ontologyName, ontologies[INDEX_MATCH]);
+                //add ontology-id by adding it to map with ontology-name
+                ReadWriteFile.ontMap.put(ontologyName, ontologies[INDEX_ONT]);
+                //add uri by adding it to map with ontology-name
+                ReadWriteFile.uriMap.put(ontologyName, ontologies[INDEX_URI]);
+                //add matches by adding it to map with ontology-name
+                ReadWriteFile.matchMap.put(ontologyName, ontologies[INDEX_MATCH]);
 
-            ReadWriteFile.qOntMap.put(ontologyName, ontologies[INDEX_Q_ONT]);
-            ReadWriteFile.eOntMap.put(ontologyName, ontologies[INDEX_E_ONT]);
+                ReadWriteFile.qOntMap.put(ontologyName, ontologies[INDEX_Q_ONT]);
+                ReadWriteFile.eOntMap.put(ontologyName, ontologies[INDEX_E_ONT]);
             });
         }
 
@@ -368,7 +369,7 @@ public class Ontology {
         outputFileName += "_new." + ext;
 
         //write
-        ReadWriteFile.writeOntologyToFile(colName, outputFileName);
+        ReadWriteFile.writeOntologyToFile(filename, colName, outputFileName, seperator);
         System.out.println("COMPLETED.");
 
     }
