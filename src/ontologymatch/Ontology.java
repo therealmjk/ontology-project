@@ -235,8 +235,6 @@ public class Ontology {
                     eqMatchList.add(matchText);
                 }
             }
-            //add to temp (like a temp storage)
-//            tempList.add(idUrl);
         }
 
         //Q stands for quality
@@ -308,12 +306,10 @@ public class Ontology {
         ReadWriteFile.matchMap = new HashMap<>();
         ReadWriteFile.qOntMap = new HashMap<>();
         ReadWriteFile.eOntMap = new HashMap<>();
-//        List<Thread> threadList = new LinkedList<>();
 
         //read and get column names
         List valueList = ReadWriteFile.readAndGetOntologyNamesFromFile(filename, colName, seperator);
-//        System.out.println(valueList.size());
-//        return;
+
         //loop thru all added ontology-names
         for (Object value : valueList) {
 
