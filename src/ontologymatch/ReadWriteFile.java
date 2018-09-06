@@ -9,47 +9,34 @@ package ontologymatch;
  *
  * @author Muhd Jibril Kazim
  */
-
 import java.util.List;
-import java.util.Map;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ReadWriteFile {
 
-    public static XSSFWorkbook workbook = null;
-    public static XSSFSheet sheet = null;
-    public static int colIndex = 0;
-    public static Map<String, String> ontMap = null;
-    public static Map<String, String> uriMap = null;
-    public static Map<String, String> matchMap = null;
-    public static Map<String, String> qOntMap = null;
-    public static Map<String, String> eOntMap = null;
-
-    public static List readAndGetOntologyNamesFromFile(String filename, String colName, String seperator) throws Exception {
+    public static List readAndGetOntologyNamesFromFile(String filename, String colName, String seperator, int sheetNumber) throws Exception {
         //get clumn index by column name
-        colIndex = getComulnIndex(filename, colName, seperator);
+        Utility.colIndex = getComulnIndex(filename, colName, seperator, sheetNumber);
 
         //get extension
         String ext = Utility.getFileExtension(filename);
 
         switch (ext) {
             case "xlsx":
-                return Utility.readAndGetOntologyXlxs(filename, colName, colIndex);
+                return Utility.readAndGetOntologyXlxs(filename, colName, sheetNumber);
             case "csv":
-                return Utility.readAndGetOntologyCsv(filename, colName, colIndex);
+                return Utility.readAndGetOntologyCsv(filename, colName);
             default:
-                return Utility.readAndGetOntologyFile(filename, colName, colIndex, seperator);
+                return Utility.readAndGetOntologyFile(filename, colName, seperator);
         }
     }
 
-    private static int getComulnIndex(String filename, String columunName, String seperator) {
+    private static int getComulnIndex(String filename, String columunName, String seperator, int sheetNumber) {
         //get extension
         String ext = Utility.getFileExtension(filename);
 
         switch (ext) {
             case "xlsx":
-                return Utility.getIndexXlsxFile(filename, columunName);
+                return Utility.getIndexXlsxFile(filename, columunName, sheetNumber);
             case "csv":
             default:
                 return Utility.getIndexCsvFile(filename, columunName, seperator);
@@ -64,6 +51,7 @@ public class ReadWriteFile {
         switch (ext) {
             case "xlsx":
                 Utility.writeOntologyToXlsxFile(colName, outputFileName);
+                break;
             case "csv":
             default:
                 Utility.writeOntologyToFile(filename, colName, outputFileName, seperator);

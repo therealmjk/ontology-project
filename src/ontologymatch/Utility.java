@@ -15,19 +15,15 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import static ontologymatch.ReadWriteFile.colIndex;
-import static ontologymatch.ReadWriteFile.eOntMap;
-import static ontologymatch.ReadWriteFile.matchMap;
-import static ontologymatch.ReadWriteFile.ontMap;
-import static ontologymatch.ReadWriteFile.qOntMap;
-import static ontologymatch.ReadWriteFile.uriMap;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
@@ -38,15 +34,23 @@ public class Utility {
 
     private static final char DEFAULT_SEPARATOR = ',';
     private static final char DEFAULT_QUOTE = '"';
+    public static int colIndex = 0;
+    public static XSSFWorkbook workbook = null;
+    public static XSSFSheet sheet = null;
+    public static Map<String, String> ontMap = null;
+    public static Map<String, String> uriMap = null;
+    public static Map<String, String> matchMap = null;
+    public static Map<String, String> qOntMap = null;
+    public static Map<String, String> eOntMap = null;
 
-    public static int getIndexXlsxFile(String filename, String columunName) {
+    public static int getIndexXlsxFile(String filename, String columunName, int sheetNumber) {
 
         try {
 
             InputStream XlsxFileToRead = new FileInputStream(filename);
-            ReadWriteFile.workbook = new XSSFWorkbook(XlsxFileToRead);
-            ReadWriteFile.sheet = ReadWriteFile.workbook.getSheetAt(0);
-            Row firstRow = ReadWriteFile.sheet.getRow(0);
+            workbook = new XSSFWorkbook(XlsxFileToRead);
+            sheet = workbook.getSheetAt(sheetNumber);
+            Row firstRow = sheet.getRow(0);
             Iterator firstRowCells = firstRow.cellIterator();
 
             while (firstRowCells.hasNext()) {
@@ -91,17 +95,17 @@ public class Utility {
         return -1;
     }
 
-    public static List readAndGetOntologyXlxs(String filename, String colName, int colIndex) throws Exception {
+    public static List readAndGetOntologyXlxs(String filename, String colName, int sheetNumber) throws Exception {
 
         List valueList = new ArrayList();
 
         //read excel file
         InputStream XlsxFileToRead = new FileInputStream(filename);
-        ReadWriteFile.workbook = new XSSFWorkbook(XlsxFileToRead);
-        ReadWriteFile.sheet = ReadWriteFile.workbook.getSheetAt(0);
+        workbook = new XSSFWorkbook(XlsxFileToRead);
+        sheet = workbook.getSheetAt(sheetNumber);
 
         //get ontology-names from a specific column 
-        for (Row row : ReadWriteFile.sheet) {
+        for (Row row : sheet) {
             //get all cells in a specific column
             Cell cell = row.getCell(colIndex);
             if (cell != null && cell.getCellType() == cell.CELL_TYPE_STRING) {
@@ -118,7 +122,7 @@ public class Utility {
         return valueList;
     }
 
-    public static List readAndGetOntologyCsv(String filename, String colName, int colIndex) throws Exception {
+    public static List readAndGetOntologyCsv(String filename, String colName) throws Exception {
 
         List valueList = new ArrayList();
         Scanner scanner = new Scanner(new File(filename));
@@ -139,7 +143,7 @@ public class Utility {
         return valueList;
     }
 
-    public static List readAndGetOntologyFile(String filename, String colName, int colIndex, String seperator) throws Exception {
+    public static List readAndGetOntologyFile(String filename, String colName, String seperator) throws Exception {
 
         List valueList = new ArrayList();
         String line;
@@ -279,7 +283,7 @@ public class Utility {
         String newColName = colName + "_id";
 
         //add new column for ontologies
-        for (Row row : ReadWriteFile.sheet) {
+        for (Row row : sheet) {
             //get all cells in a specific column
             for (int i = 0; i < row.getLastCellNum(); i++) {
                 Cell cell = row.getCell(i);
@@ -294,16 +298,16 @@ public class Utility {
                         Cell newCell4 = row.createCell(colIndex + 4);
                         Cell newCell5 = row.createCell(colIndex + 5);
                         //get previous cell
-                        Cell prevCell = row.getCell(ReadWriteFile.colIndex);
+                        Cell prevCell = row.getCell(colIndex);
 
                         if (prevCell != null && prevCell.getCellType() == prevCell.CELL_TYPE_STRING) {
                             //get previous cell value
                             String prevCellValue = prevCell.getStringCellValue();
+
                             //get value using previous as key from mapper
                             String ontologyValue = ontMap.get(prevCellValue);
                             String uriValue = uriMap.get(prevCellValue);
                             String matchValue = matchMap.get(prevCellValue);
-
                             String qOntologyValue = qOntMap.get(prevCellValue);
                             String eOntologyValue = eOntMap.get(prevCellValue);
 
@@ -330,8 +334,8 @@ public class Utility {
 
         //write data to new file
         FileOutputStream outputStream = new FileOutputStream(outputFileName);
-        ReadWriteFile.workbook.write(outputStream);
-        ReadWriteFile.workbook.close();
+        workbook.write(outputStream);
+        workbook.close();
         outputStream.close();
     }
 
